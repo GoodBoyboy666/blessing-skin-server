@@ -13,14 +13,13 @@ jobs:
       with:
         php-version: '8.2'
         extensions: mbstring, dom, fileinfo, gd, zip
-    - name: Start composer
+    - name: Init composer
       uses: php-actions/composer@v6
       with:
         php_version: "8.2"
         php_extensions: gd zip mbstring dom fileinfo
     - name: Install dependencies
-      run: |
-        composer install
+      run: composer install
     - name: cp
       run: cp .env.example .env
     - name: generate key
