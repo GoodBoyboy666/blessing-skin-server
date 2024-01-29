@@ -17,6 +17,7 @@ jobs:
       uses: php-actions/composer@v6
       with:
         php_version: "8.2"
+        php_extensions: gd,zip
     - name: cp
       run: cp .env.example .env
     - name: generate key
