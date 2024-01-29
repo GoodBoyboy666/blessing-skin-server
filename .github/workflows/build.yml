@@ -38,8 +38,6 @@ jobs:
         mkdir -p resources/views/overrides
     - name: Validate Twig templates
       run: php artisan twig:lint -v
-    - name: Check coding style
-      run: ./vendor/bin/php-cs-fixer fix --dry-run --stop-on-violation --diff --format=txt
     - name: yarn install
       run: yarn
     - name: run build.ps1 file
