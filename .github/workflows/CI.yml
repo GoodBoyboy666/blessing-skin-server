@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - build-branch
     paths-ignore:
       - 'resources/lang/**'
       - '**.md'
