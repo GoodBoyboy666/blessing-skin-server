@@ -1,29 +1,45 @@
 name: CI
 
-#on: [push]
+on: 
+  push:
+    branches:
+      - build-branch
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
     - name: Init PHP with specific version
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: mbstring, dom, fileinfo, gd, zip
-    - name: Init composer
-      uses: php-actions/composer@v6
+        extensions: mbstring, dom, fileinfo, sqlite, gd, zip
+    - name: Cache Node dependencies
+      uses: actions/cache@v3
       with:
-        php_version: "8.2"
-        php_extensions: gd zip mbstring dom fileinfo
+        path: node_modules
+        key: ${{ runner.os }}-yarn-lock-${{ hashFiles('yarn.lock') }}
+        restore-keys: ${{ runner.os }}-yarn-lock-
+    - name: Cache Composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
     - name: Install dependencies
-      run: composer install
-    - name: cp
-      run: cp .env.example .env
-    - name: generate key
-      run: php artisan key:generate
+      run: composer install --prefer-dist --no-progress --no-dev
+    - name: Prepare
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        mkdir -p resources/views/overrides
+    - name: Validate Twig templates
+      run: php artisan twig:lint -v
+    - name: Check coding style
+      run: ./vendor/bin/php-cs-fixer fix --dry-run --stop-on-violation --diff --format=txt
     - name: yarn install
       run: yarn
     - name: run build.ps1 file
