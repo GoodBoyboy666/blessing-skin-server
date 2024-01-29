@@ -1,0 +1,27 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup PHP with specific version
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+    - name: Start composer
+      uses: php-actions/composer@v6
+      with:
+        php_version: "8.1"
+    - name: cp
+      run: cp .env.example .env
+    - name: generate key
+      run: php artisan key:generate
+    - name: yarn install, build
+      run: yarn
+    - name: Perform a Pester test from the Tests.ps1 file
+      shell: pwsh
+      run: ./tools/build.ps1
