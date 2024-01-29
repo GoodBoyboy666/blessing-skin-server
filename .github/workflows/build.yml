@@ -8,22 +8,33 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup PHP with specific version
+    - name: Init PHP with specific version
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: gd,zip
+        extensions: mbstring, dom, fileinfo, gd, zip
     - name: Start composer
       uses: php-actions/composer@v6
       with:
         php_version: "8.2"
-        php_extensions: gd zip
+        php_extensions: gd zip mbstring dom fileinfo
+    - name: Install dependencies
+      run: |
+        composer install
     - name: cp
       run: cp .env.example .env
     - name: generate key
       run: php artisan key:generate
-    - name: yarn install, build
+    - name: yarn install
       run: yarn
-    - name: Perform a Pester test from the Tests.ps1 file
+    - name: run build.ps1 file
       shell: pwsh
       run: ./tools/build.ps1
+    - uses: benjlevesque/short-sha@v1.2
+      id: short-sha
+    - name: Archive release
+        run: zip -9 -r blessing-skin-server-${{ steps.short-sha.outputs.sha }}.zip app bootstrap config database plugins public resources/lang resources/views resources/misc/textures routes storage vendor .env.example artisan LICENSE README.md README-zh.md index.html
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        path: blessing-skin-server-${{ steps.short-sha.outputs.sha }}.zip
